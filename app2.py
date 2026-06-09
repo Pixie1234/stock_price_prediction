@@ -367,7 +367,7 @@ if model_mode == "LSTM vs Informer (Open)":
 
     # LSTM predictions (scaled)
     y_pred_lstm_open_scaled = y_pred_both[:, 0].copy()
-    y_pred_lstm_close_scaled = y_pred_both_cal[:, 1].copy()
+    y_pred_lstm_close_scaled = y_pred_both[:, 1].copy()
     pred_lstm_close_real = inverse_transform_col(y_pred_lstm_close_scaled, BODY_PCT_IDX, ctx["scaler"])
 
     # Informer predictions (scaled)
