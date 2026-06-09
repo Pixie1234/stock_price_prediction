@@ -28,8 +28,6 @@ from data_pipeline import (
 from lstm_model import (
     load_or_train, forecast_ohlcv,
     load_or_train_direct, forecast_direct_ohlcv,
-    load_or_train_close_only,
-    load_or_train_close_residual,
 )
 from informer_model import (
     load_or_train_informer,
@@ -238,29 +236,6 @@ def get_direct_models(symbol, lstm_path, informer_path, horizon: int):
     return direct_ctx, lstm_direct, informer_direct
 
 
-@st.cache_resource
-def get_close_only_model(symbol, path, data_version: str):
-    refresh_date = f"{pd.Timestamp.today().date()}_v5"
-    ctx = get_data(symbol, refresh_date)
-    model, _loaded = load_or_train_close_only(
-        ctx["X_train"], ctx["y_train"][:, 1],
-        ctx["X_val"], ctx["y_val"][:, 1],
-        path,
-    )
-    return model
-
-
-@st.cache_resource
-def get_close_residual_model(symbol, path, data_version: str):
-    refresh_date = f"{pd.Timestamp.today().date()}_v5"
-    ctx = get_data(symbol, refresh_date)
-    model, _loaded = load_or_train_close_residual(
-        ctx["X_train"], ctx["y_train"][:, 1],
-        ctx["X_val"], ctx["y_val"][:, 1],
-        path,
-    )
-    return model
-
 DECAY_RATE = 10.0
 ARTICLE_SCALE = 0.10
 TOTAL_SCALE = 0.20
@@ -345,19 +320,10 @@ if isinstance(pred_out, (list, tuple)):
 else:
     y_pred_both = pred_out
 
-# No close post-processing in the open-only thesis UI.
-y_pred_both_cal = y_pred_both
-
 # Evaluate Open prediction
 m_open, df_open, yt_open, yp_open = evaluate_predictions(
     ctx["y_test"][:, 0], y_pred_both[:, 0],
     ctx["scaler"], OPEN_IDX, "Open"
-)
-
-# Evaluate auxiliary target prediction for internal use.
-m_close, df_close, yt_close, yp_close = evaluate_predictions(
-    ctx["y_test"][:, 1], y_pred_both_cal[:, 1],
-    ctx["scaler"], BODY_PCT_IDX, "Close"
 )
 
 # Display Open metrics only
