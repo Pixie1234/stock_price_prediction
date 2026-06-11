@@ -116,7 +116,7 @@ st.sidebar.success(f"{company} ({symbol})")
 
 days_to_predict = st.sidebar.number_input(
     label="Forecast horizon (trading days)",
-    min_value=5, max_value=DIRECT_HORIZON,
+    min_value=5, max_value=max(DIRECT_HORIZON, 90),
     value=DIRECT_HORIZON, step=1, format="%d"
 )
 
@@ -215,7 +215,7 @@ with st.spinner("Loading Informer model..."):
 
 model_status = "Loaded saved model" if was_loaded else "Model trained"
 st.success(
-    f"✓ {model_status} | Input: {N_FEATURES} features | Output: {N_OUTPUTS} (Open-focused)"
+    f"✓ {model_status} | Input: {N_FEATURES} features | Output: 1 (Open-focused)"
 )
 
 @st.cache_resource
